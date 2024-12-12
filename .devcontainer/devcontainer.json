@@ -1,0 +1,24 @@
+{
+  "name": "Gradle with Java DevContainer",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "wmaurer.change-case",
+        "mhutchie.git-graph",
+        "streetsidesoftware.code-spell-checker",
+        "ms-vsliveshare.vsliveshare",
+        "Oracle.oracle-java",
+        "yzhang.markdown-all-in-one",
+        "GrapeCity.gc-excelviewer",
+        "DavidAnson.vscode-markdownlint",
+        "shd101wyy.markdown-preview-enhanced",
+        "vscjava.vscode-gradle"
+      ]
+    }
+  },
+  "forwardPorts": [],
+  "postCreateCommand": "gradle --version"
+}
