@@ -1,4 +1,4 @@
-# ベースイメージはお好みで
+# ベースイメージ
 FROM ubuntu:24.10
 
 # 非対話型で apt-get を実行するための環境変数設定
@@ -22,15 +22,15 @@ RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install gradle"
 # Gradle のパスを環境変数に追加
 ENV PATH=$PATH:/root/.sdkman/candidates/gradle/current/bin
 
-# Java のインストール
+# 必要な環境と Java のインストール
 RUN apt-get update && apt-get install -y \
-    curl \
-    zip \
-    unzip \
-    ca-certificates \
-    git \
-    openjdk-22-jdk \
-    && rm -rf /var/lib/apt/lists/*
+  curl \
+  zip \
+  unzip \
+  ca-certificates \
+  git \
+  openjdk-22-jdk \
+  && rm -rf /var/lib/apt/lists/*
 
 # 作業ディレクトリ設定
 WORKDIR /workspace
@@ -40,9 +40,10 @@ WORKDIR /workspace
 RUN echo "source $HOME/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc
 
 # ここで非対話的に Gradle プロジェクトを初期化
-# 例えば Java ライブラリプロジェクトを初期化する場合:
 RUN gradle init --type java-library --test-framework junit
 
+# 初期ビルドを実行
 RUN gradle build
 
+# 正常に終了したテストを実行
 RUN gradle test
