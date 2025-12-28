@@ -1,49 +1,57 @@
 # ベースイメージ
-FROM ubuntu:24.10
+FROM ubuntu:24.04
 
 # 非対話型で apt-get を実行するための環境変数設定
 ENV DEBIAN_FRONTEND=noninteractive
 
+# 必要なパッケージのインストール
 RUN apt-get update && apt-get install -y \
-  curl \
+  # Version control
+  git \
+  # SSL/Certificates
+  ca-certificates \
+  # Compression
   zip \
   unzip \
-  ca-certificates \
+  # Network tools
+  curl \
+  wget \
+  net-tools \
+  iputils-ping \
+  # Text editors
+  vim \
+  nano \
+  # Utilities
+  less \
+  jq \
+  tree \
+  htop \
+  procps \
+  # Build tools
+  build-essential \
+  # Locale and timezone (for later steps)
+  locales \
+  tzdata \
+  # User management (for later steps)
+  sudo \
   && rm -rf /var/lib/apt/lists/*
 
 # SDKMAN!のインストール
-# インストールスクリプトを取得して実行
 RUN curl -s "https://get.sdkman.io" | bash
 
-# SDKMAN! を有効化した上で gradle をインストール
-# `source` が必要になるため、bash -cでコマンドを実行
-RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install gradle"
+# SDKMAN! を使用して Java 25 LTS と Gradle 最新版をインストール
+RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
+  sdk install java 25-open && \
+  sdk install gradle && \
+  sdk default java 25-open"
 
-# Gradle のパスを環境変数に追加
-ENV PATH=$PATH:/root/.sdkman/candidates/gradle/current/bin
-
-# 必要な環境と Java のインストール
-RUN apt-get update && apt-get install -y \
-  curl \
-  zip \
-  unzip \
-  ca-certificates \
-  git \
-  openjdk-22-jdk \
-  && rm -rf /var/lib/apt/lists/*
+# 環境変数の設定
+ENV JAVA_HOME=/root/.sdkman/candidates/java/current
+ENV GRADLE_HOME=/root/.sdkman/candidates/gradle/current
+ENV PATH=$PATH:$JAVA_HOME/bin:$GRADLE_HOME/bin
 
 # 作業ディレクトリ設定
 WORKDIR /workspace
 
 # コンテナ起動時に SDKMAN! を有効化するための設定
-# これによりターミナルアクセス時にも gradle が利用可能
 RUN echo "source $HOME/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc
-
-# ここで非対話的に Gradle プロジェクトを初期化
-RUN gradle init --type java-library --test-framework junit
-
-# 初期ビルドを実行
-RUN gradle build
-
-# 正常に終了したテストを実行
-RUN gradle test
