@@ -1,3 +1,27 @@
 {
-  "cSpell.words": ["ctxt", "gradlew", "noninteractive", "SDKMAN"]
+  "cSpell.words": [
+    "ctxt",
+    "devcontainer",
+    "dpkg",
+    "getent",
+    "gradlew",
+    "htop",
+    "localtime",
+    "noninteractive",
+    "NOPASSWD",
+    "oneline",
+    "procps",
+    "SDKMAN",
+    "tzdata",
+    "usermod",
+    "vscode",
+    "zoneinfo"
+  ],
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-25",
+      "path": "/home/vscode/.sdkman/candidates/java/current"
+    }
+  ],
+  "java.home": "/home/vscode/.sdkman/candidates/java/current"
 }
