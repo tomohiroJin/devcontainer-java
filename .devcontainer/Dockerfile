@@ -84,6 +84,9 @@ RUN if id -u ubuntu > /dev/null 2>&1; then \
 USER vscode
 WORKDIR /home/vscode
 
+# Suppress sudo informational message
+RUN touch /home/vscode/.sudo_as_admin_successful
+
 # SDKMAN!のインストール
 RUN curl -s "https://get.sdkman.io" | bash
 
