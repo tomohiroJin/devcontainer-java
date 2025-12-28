@@ -48,6 +48,17 @@ RUN apt-get update && apt-get install -y \
 # ========================================
 RUN dpkg-reconfigure -f noninteractive tzdata
 
+# ========================================
+# Locale Configuration
+# ========================================
+RUN sed -i '/ja_JP.UTF-8/s/^# //g' /etc/locale.gen \
+    && locale-gen ja_JP.UTF-8 \
+    && update-locale LANG=ja_JP.UTF-8
+
+ENV LANG=ja_JP.UTF-8
+ENV LANGUAGE=ja_JP:ja
+ENV LC_ALL=ja_JP.UTF-8
+
 # SDKMAN!のインストール
 RUN curl -s "https://get.sdkman.io" | bash
 
