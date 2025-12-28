@@ -87,7 +87,7 @@ WORKDIR /home/vscode
 # SDKMAN!のインストール
 RUN curl -s "https://get.sdkman.io" | bash
 
-# SDKMAN! を使用して Java 25 LTS と Gradle 最新版をインストール
+# SDKMAN! を使用して Java 25 と Gradle 最新版をインストール
 RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
   sdk install java 25-open && \
   sdk install gradle && \
