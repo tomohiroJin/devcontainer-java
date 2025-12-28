@@ -30,4 +30,4 @@ replay_pid*
 
 # It is unnecessary to create it here as it will be generated during gradle init.
 gradlew
-gradlew.bat
+gradlew.bat.claude/
