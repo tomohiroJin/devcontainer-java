@@ -3,22 +3,57 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "JAVA_HOME": "/home/vscode/.sdkman/candidates/java/current",
+    "GRADLE_HOME": "/home/vscode/.sdkman/candidates/gradle/current",
+    "LANG": "ja_JP.UTF-8",
+    "TZ": "Asia/Tokyo"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
-        "wmaurer.change-case",
+        // Java開発の必須拡張機能
+        "redhat.java",
+        "vscjava.vscode-java-debug",
+        "vscjava.vscode-java-test",
+        "vscjava.vscode-java-dependency",
+        "vscjava.vscode-maven",
+        "vscjava.vscode-gradle",
+        "Oracle.oracle-java",
+
+        // Lombokサポート
+        "gabrielbb.vscode-lombok",
+
+        // Spring Boot開発（必要に応じて）
+        "vmware.vscode-spring-boot",
+        "vscjava.vscode-spring-boot-dashboard",
+
+        // コード品質・フォーマット
+        "sonarsource.sonarlint-vscode",
+        "shengchen.vscode-checkstyle",
+
+        // Git・バージョン管理
         "mhutchie.git-graph",
+
+        // 汎用ツール
+        "wmaurer.change-case",
         "streetsidesoftware.code-spell-checker",
         "ms-vsliveshare.vsliveshare",
-        "Oracle.oracle-java",
+
+        // Markdown
         "yzhang.markdown-all-in-one",
-        "GrapeCity.gc-excelviewer",
         "DavidAnson.vscode-markdownlint",
         "shd101wyy.markdown-preview-enhanced",
-        "vscjava.vscode-gradle"
+
+        // その他
+        "GrapeCity.gc-excelviewer"
       ]
     }
   },
+  "mounts": [
+    "source=devcontainer-java-gradle-cache,target=/home/vscode/.gradle,type=volume"
+  ],
   "forwardPorts": [],
-  "postCreateCommand": "gradle --version"
+  "postCreateCommand": "bash -c 'source ~/.sdkman/bin/sdkman-init.sh && echo \"=== Environment Setup Verification ===\" && echo && echo \"=== Java Version ===\" && java -version && echo && echo \"=== Gradle Version ===\" && gradle --version && echo && echo \"=== Timezone ===\" && date && echo && echo \"=== Locale ===\" && locale && echo && echo \"=== SDKMAN Version ===\" && sdk version'"
 }
