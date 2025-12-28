@@ -30,7 +30,6 @@
         "vscjava.vscode-spring-boot-dashboard",
 
         // コード品質・フォーマット
-        "sonarsource.sonarlint-vscode",
         "shengchen.vscode-checkstyle",
 
         // Git・バージョン管理
