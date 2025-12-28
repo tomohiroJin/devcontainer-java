@@ -13,40 +13,31 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        // Java開発の必須拡張機能
+        // ========================================
+        // Essential: Java Development
+        // ========================================
         "redhat.java",
         "vscjava.vscode-java-debug",
         "vscjava.vscode-java-test",
         "vscjava.vscode-java-dependency",
-        "vscjava.vscode-maven",
         "vscjava.vscode-gradle",
-        "Oracle.oracle-java",
 
-        // Lombokサポート
-        "gabrielbb.vscode-lombok",
-
-        // Spring Boot開発（必要に応じて）
-        "vmware.vscode-spring-boot",
-        "vscjava.vscode-spring-boot-dashboard",
-
-        // コード品質・フォーマット
-        "shengchen.vscode-checkstyle",
-
-        // Git・バージョン管理
-        "mhutchie.git-graph",
-
-        // 汎用ツール
-        "wmaurer.change-case",
-        "streetsidesoftware.code-spell-checker",
-        "ms-vsliveshare.vsliveshare",
-
-        // Markdown
+        // ========================================
+        // Essential: Documentation
+        // ========================================
         "yzhang.markdown-all-in-one",
         "DavidAnson.vscode-markdownlint",
-        "shd101wyy.markdown-preview-enhanced",
 
-        // その他
-        "GrapeCity.gc-excelviewer"
+        // ========================================
+        // Essential: Code Quality
+        // ========================================
+        "streetsidesoftware.code-spell-checker",
+
+        // ========================================
+        // Recommended: Additional Tools
+        // ========================================
+        "shengchen.vscode-checkstyle",
+        "mhutchie.git-graph"
       ]
     }
   },
