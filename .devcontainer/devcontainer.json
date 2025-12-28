@@ -55,5 +55,5 @@
     "source=devcontainer-java-gradle-cache,target=/home/vscode/.gradle,type=volume"
   ],
   "forwardPorts": [],
-  "postCreateCommand": "bash -c 'source ~/.sdkman/bin/sdkman-init.sh && echo \"=== Environment Setup Verification ===\" && echo && echo \"=== Java Version ===\" && java -version && echo && echo \"=== Gradle Version ===\" && gradle --version && echo && echo \"=== Timezone ===\" && date && echo && echo \"=== Locale ===\" && locale && echo && echo \"=== SDKMAN Version ===\" && sdk version'"
+  "postCreateCommand": "bash -c 'source ~/.sdkman/bin/sdkman-init.sh && echo \"=== Environment Setup Verification ===\" && echo && echo \"=== Java Version ===\" && java -version && echo && echo \"=== Timezone ===\" && date && echo && echo \"=== Locale ===\" && locale'"
 }
