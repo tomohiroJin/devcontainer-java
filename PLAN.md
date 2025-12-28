@@ -20,15 +20,15 @@
 
 各ステップの実装状況:
 
-- [ ] Step 1: 開発ツールの追加
-- [ ] Step 2: タイムゾーン設定の追加
-- [ ] Step 3: 日本語ロケール設定の追加
-- [ ] Step 4: 非rootユーザーの作成
-- [ ] Step 5: SDKMAN! の非rootユーザー化
-- [ ] Step 6: devcontainer.json の更新
-- [ ] Step 7: 動作確認とテスト
-- [ ] Step 8: README.md の更新
-- [ ] Step 9: .vscode/settings.json の更新 (オプション)
+- [x] Step 1: 開発ツールの追加
+- [x] Step 2: タイムゾーン設定の追加
+- [x] Step 3: 日本語ロケール設定の追加
+- [x] Step 4: 非rootユーザーの作成
+- [x] Step 5: SDKMAN! の非rootユーザー化
+- [x] Step 6: devcontainer.json の更新
+- [x] Step 7: 動作確認とテスト
+- [x] Step 8: README.md の更新
+- [x] Step 9: .vscode/settings.json の更新 (オプション)
 
 ## 変更対象ファイル
 
