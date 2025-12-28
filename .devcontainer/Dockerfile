@@ -71,6 +71,12 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
+# ========================================
+# Switch to Non-Root User
+# ========================================
+USER vscode
+WORKDIR /home/vscode
+
 # SDKMAN!のインストール
 RUN curl -s "https://get.sdkman.io" | bash
 
@@ -80,13 +86,24 @@ RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
   sdk install gradle && \
   sdk default java 25-open"
 
-# 環境変数の設定
-ENV JAVA_HOME=/root/.sdkman/candidates/java/current
-ENV GRADLE_HOME=/root/.sdkman/candidates/gradle/current
+# ========================================
+# Environment Variables
+# ========================================
+ENV JAVA_HOME=/home/vscode/.sdkman/candidates/java/current
+ENV GRADLE_HOME=/home/vscode/.sdkman/candidates/gradle/current
 ENV PATH=$PATH:$JAVA_HOME/bin:$GRADLE_HOME/bin
 
-# 作業ディレクトリ設定
-WORKDIR /workspace
+# ========================================
+# Shell Configuration
+# ========================================
+RUN echo "source /home/vscode/.sdkman/bin/sdkman-init.sh" >> /home/vscode/.bashrc
 
-# コンテナ起動時に SDKMAN! を有効化するための設定
-RUN echo "source $HOME/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc
+# ========================================
+# Working Directory
+# ========================================
+WORKDIR /workspaces
+
+# ========================================
+# Cleanup
+# ========================================
+ENV DEBIAN_FRONTEND=
