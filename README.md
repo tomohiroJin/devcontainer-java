@@ -26,12 +26,17 @@
 
 ### プリインストール済み拡張機能
 
-#### Java 開発 (必須) - 5個
+#### Java 開発 (必須) - Extension Pack for Java
+
+**Extension Pack for Java** (Microsoft 公式) - 以下の6つの拡張機能を含むパック:
 - **Language Support for Java** (Red Hat) - IntelliSense、リファクタリング、コードナビゲーション
 - **Debugger for Java** - VS Code 内で Java アプリケーションをデバッグ
 - **Test Runner for Java** - JUnit テストの実行とデバッグ
-- **Java Dependency Viewer** - プロジェクトの依存関係を表示・管理
+- **Project Manager for Java** - プロジェクトの依存関係を表示・管理
+- **Maven for Java** - Maven サポート（このプロジェクトでは未使用）
 - **Gradle for Java** - Gradle ビルドツールとの連携
+
+拡張機能 ID: `vscjava.vscode-java-pack`
 
 #### ドキュメント (必須) - 2個
 - **Markdown All in One** - README やドキュメントファイルの編集
@@ -417,11 +422,7 @@ Java: Clean Java Language Server Workspace
   // ========================================
   // Essential: Java Development
   // ========================================
-  "redhat.java",
-  "vscjava.vscode-java-debug",
-  "vscjava.vscode-java-test",
-  "vscjava.vscode-java-dependency",
-  "vscjava.vscode-gradle",
+  "vscjava.vscode-java-pack",
 
   // ========================================
   // Essential: Documentation

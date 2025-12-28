@@ -16,11 +16,7 @@
         // ========================================
         // Essential: Java Development
         // ========================================
-        "redhat.java",
-        "vscjava.vscode-java-debug",
-        "vscjava.vscode-java-test",
-        "vscjava.vscode-java-dependency",
-        "vscjava.vscode-gradle",
+        "vscjava.vscode-java-pack",
 
         // ========================================
         // Essential: Documentation
