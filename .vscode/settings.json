@@ -23,5 +23,12 @@
       "path": "/home/vscode/.sdkman/candidates/java/current"
     }
   ],
-  "java.home": "/home/vscode/.sdkman/candidates/java/current"
+  "java.home": "/home/vscode/.sdkman/candidates/java/current",
+  // Java formatting and code organization
+  "java.format.settings.url": null,
+  "java.format.settings.profile": null,
+  "java.saveActions.organizeImports": true,
+  // Gradle settings
+  "java.import.gradle.home": "/home/vscode/.sdkman/candidates/gradle/current",
+  "java.import.gradle.java.home": "/home/vscode/.sdkman/candidates/java/current"
 }
