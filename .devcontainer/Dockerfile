@@ -4,6 +4,13 @@ FROM ubuntu:24.04
 # 非対話型で apt-get を実行するための環境変数設定
 ENV DEBIAN_FRONTEND=noninteractive
 
+# ========================================
+# Timezone configuration
+# ========================================
+ENV TZ=Asia/Tokyo
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone
+
 # 必要なパッケージのインストール
 RUN apt-get update && apt-get install -y \
   # Version control
@@ -35,6 +42,11 @@ RUN apt-get update && apt-get install -y \
   # User management (for later steps)
   sudo \
   && rm -rf /var/lib/apt/lists/*
+
+# ========================================
+# Finalize timezone setup
+# ========================================
+RUN dpkg-reconfigure -f noninteractive tzdata
 
 # SDKMAN!のインストール
 RUN curl -s "https://get.sdkman.io" | bash
