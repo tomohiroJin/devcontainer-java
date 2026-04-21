@@ -13,8 +13,8 @@ VS Code で DevContainer を起動:
 ### 2. 環境確認
 
 ```bash
-java -version    # Java 25
-gradle -v        # Gradle 9.2.1
+java -version    # Java 25 (LTS)
+gradle -v        # Gradle 9.4.1
 locale           # ja_JP.UTF-8
 date             # Asia/Tokyo
 ```
@@ -22,8 +22,8 @@ date             # Asia/Tokyo
 ### 3. ビルド・テスト
 
 ```bash
-./gradlew build  # ビルド
-./gradlew test   # テスト実行
+gradle build  # ビルド
+gradle test   # テスト実行
 ```
 
 ### 4. サンプルコード確認
@@ -42,9 +42,9 @@ cat src/test/java/HelloWorldTest.java
 
 | 項目 | 値 |
 |------|-----|
-| ベースイメージ | Ubuntu 24.04 |
-| Java | OpenJDK 25 |
-| Gradle | 9.2.1 |
+| ベースイメージ | Ubuntu 24.04 LTS |
+| Java | OpenJDK 25 (LTS) |
+| Gradle | 9.4.1 |
 | パッケージマネージャー | SDKMAN! |
 | ユーザー | vscode (非root) |
 | ロケール | ja_JP.UTF-8 |
@@ -75,6 +75,8 @@ TZ=Asia/Tokyo
   - Project Manager for Java
   - Maven for Java
   - Gradle for Java
+- **XML** (`redhat.vscode-xml`) - XML / POM / Checkstyle 設定の編集支援
+- **EditorConfig** (`EditorConfig.EditorConfig`) - エディタ設定の共通化
 - **Markdown All in One** (`yzhang.markdown-all-in-one`)
 - **Markdown Lint** (`DavidAnson.vscode-markdownlint`)
 - **Code Spell Checker** (`streetsidesoftware.code-spell-checker`)
@@ -93,14 +95,18 @@ TZ=Asia/Tokyo
 
 #### 方法2: devcontainer.json に追加（永続化）
 
-`.devcontainer/devcontainer.json` を編集:
+`.devcontainer/devcontainer.json` の `customizations.vscode.extensions` 配列に追加:
 
 ```json
-"extensions": [
-  "vscjava.vscode-java-pack",
-  // 追加したい拡張機能の ID を記述
-  "vmware.vscode-spring-boot"
-]
+"customizations": {
+  "vscode": {
+    "extensions": [
+      "vscjava.vscode-java-pack",
+      // 追加したい拡張機能の ID を記述
+      "vmware.vscode-spring-boot"
+    ]
+  }
+}
 ```
 
 コンテナを再構築:
@@ -118,6 +124,7 @@ Dev Containers: Rebuild Container
 # Java 21 に変更する例
 RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
   sdk install java 21-open && \
+  sdk install gradle && \
   sdk default java 21-open"
 ```
 
@@ -146,7 +153,7 @@ org.gradle.caching=true
 `.devcontainer/devcontainer.json` を編集:
 
 ```json
-"postCreateCommand": "bash -c 'sudo chown -R vscode:vscode /home/vscode/.gradle && ./gradlew build'"
+"postCreateCommand": "bash -c 'sudo chown -R vscode:vscode /home/vscode/.gradle && gradle build'"
 ```
 
 ## トラブルシューティング
@@ -159,22 +166,22 @@ org.gradle.caching=true
 Unsupported class file major version 69
 ```
 
-**原因:** Gradle バージョンが 9.2.1 未満
+**原因:** Gradle バージョンが Java 25 に対応していない
 
 **解決方法:**
 
 ```bash
 # Gradle バージョン確認
-./gradlew --version
+gradle --version
 
 # gradle/wrapper/gradle-wrapper.properties を確認
 cat gradle/wrapper/gradle-wrapper.properties
 
-# 9.2.1 未満の場合、手動で更新
-./gradlew wrapper --gradle-version 9.2.1
+# 対応バージョン未満の場合、手動で更新
+gradle wrapper --gradle-version 9.4.1
 
 # クリーンビルド
-./gradlew clean build
+gradle clean build
 ```
 
 ### ロケール/タイムゾーン確認
@@ -189,7 +196,7 @@ timedatectl
 
 ```bash
 rm -rf ~/.gradle/caches/
-./gradlew clean build --refresh-dependencies
+gradle clean build --refresh-dependencies
 ```
 
 ### コンテナを完全に再構築
