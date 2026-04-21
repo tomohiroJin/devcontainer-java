@@ -17,6 +17,8 @@
         // Essential: Java Development
         // ========================================
         "vscjava.vscode-java-pack",
+        "redhat.vscode-xml",
+        "EditorConfig.EditorConfig",
 
         // ========================================
         // Essential: Documentation
