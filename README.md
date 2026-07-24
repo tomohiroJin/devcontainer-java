@@ -14,7 +14,7 @@ VS Code で DevContainer を起動:
 
 ```bash
 java -version    # Java 25 (LTS)
-gradle -v        # Gradle 9.4.1
+gradle -v        # Gradle 9.6.1
 locale           # ja_JP.UTF-8
 date             # Asia/Tokyo
 ```
@@ -44,11 +44,16 @@ cat src/test/java/HelloWorldTest.java
 |------|-----|
 | ベースイメージ | Ubuntu 24.04 LTS |
 | Java | OpenJDK 25 (LTS) |
-| Gradle | 9.4.1 |
+| Gradle | 9.6.1 |
 | パッケージマネージャー | SDKMAN! |
 | ユーザー | vscode (非root) |
 | ロケール | ja_JP.UTF-8 |
 | タイムゾーン | Asia/Tokyo |
+
+Java 25 は現行の最新 LTS です（次期 LTS は Java 29 / 2027 年予定）。
+Gradle は `.devcontainer/Dockerfile`（コンテナ内の SDKMAN）と
+`gradle/wrapper/gradle-wrapper.properties`（ラッパー）の両方でバージョンを固定しており、
+イメージを再ビルドしても同じ環境が再現されます。更新時は両方を揃えて変更してください。
 
 ### 環境変数（自動設定）
 
@@ -124,7 +129,7 @@ Dev Containers: Rebuild Container
 # Java 21 に変更する例
 RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
   sdk install java 21-open && \
-  sdk install gradle && \
+  sdk install gradle 9.6.1 && \
   sdk default java 21-open"
 ```
 
@@ -178,7 +183,7 @@ gradle --version
 cat gradle/wrapper/gradle-wrapper.properties
 
 # 対応バージョン未満の場合、手動で更新
-gradle wrapper --gradle-version 9.4.1
+gradle wrapper --gradle-version 9.6.1
 
 # クリーンビルド
 gradle clean build
