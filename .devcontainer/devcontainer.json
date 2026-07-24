@@ -35,8 +35,31 @@
         // Recommended: Additional Tools
         // ========================================
         "shengchen.vscode-checkstyle",
-        "mhutchie.git-graph"
-      ]
+        "mhutchie.git-graph",
+        "eamodio.gitlens",
+        "usernamehw.errorlens",
+        "Gruntfuggly.todo-tree",
+        "redhat.vscode-yaml",
+        "humao.rest-client",
+
+        // ========================================
+        // Collaboration: Live Share
+        // ========================================
+        "MS-vsliveshare.vsliveshare"
+      ],
+      "settings": {
+        // ========================================
+        // Live Share
+        // ========================================
+        // 安定版の機能セットのみを使う
+        "liveshare.featureSet": "stable",
+        // 参加者を都度承認してから接続させる
+        "liveshare.guestApprovalRequired": true,
+        "liveshare.anonymousGuestApproval": "prompt",
+        "liveshare.connectionMode": "auto",
+        // 参加者にもホストのターミナルを表示する（読み取り専用が既定）
+        "liveshare.showInStatusBar": "always"
+      }
     }
   },
   "mounts": [

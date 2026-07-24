@@ -82,6 +82,28 @@ TZ=Asia/Tokyo
 - **Code Spell Checker** (`streetsidesoftware.code-spell-checker`)
 - **CheckStyle** (`shengchen.vscode-checkstyle`)
 - **Git Graph** (`mhutchie.git-graph`)
+- **GitLens** (`eamodio.gitlens`) - 行単位の履歴 / blame
+- **Error Lens** (`usernamehw.errorlens`) - 診断をコード行に直接表示
+- **Todo Tree** (`Gruntfuggly.todo-tree`) - TODO / FIXME の一覧表示
+- **YAML** (`redhat.vscode-yaml`) - `application.yml` や CI 設定の補完
+- **REST Client** (`humao.rest-client`) - `.http` ファイルから API を叩いて動作確認
+- **Live Share** (`MS-vsliveshare.vsliveshare`) - ペアプロ / モブプロ
+
+> Lombok 用の拡張機能は不要です。Language Support for Java (Red Hat) が
+> Lombok を標準でサポートします（設定 `java.jdt.ls.lombokSupport.enabled`、既定で有効）。
+
+### Live Share を使う
+
+コンテナ内から共同編集セッションを開始できます。
+
+1. 初回のみサインインが必要です
+   Command Palette (`Cmd+Shift+P`) → `Live Share: Sign In` →
+   GitHub または Microsoft アカウントでブラウザ認証
+2. Command Palette → `Live Share: Start Collaboration Session`
+3. クリップボードにコピーされた招待 URL を相手に共有
+
+参加者の接続は都度承認を求める設定 (`liveshare.guestApprovalRequired`) にしてあります。
+参加者に Web アプリを見せたい場合は `Live Share: Share Server` でポートを共有してください。
 
 ## カスタマイズ
 

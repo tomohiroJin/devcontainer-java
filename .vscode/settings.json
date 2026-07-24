@@ -4,12 +4,18 @@
     "ctxt",
     "devcontainer",
     "dpkg",
+    "eamodio",
+    "errorlens",
     "errorprone",
     "excelviewer",
     "gabrielbb",
     "getent",
+    "gitlens",
     "gradlew",
+    "Gruntfuggly",
     "htop",
+    "humao",
+    "liveshare",
     "localtime",
     "ltgt",
     "mhutchie",
@@ -23,8 +29,10 @@
     "spotbugs",
     "tzdata",
     "usermod",
+    "usernamehw",
     "vscode",
     "vscjava",
+    "vsliveshare",
     "wmaurer",
     "yzhang",
     "zoneinfo"
@@ -42,5 +50,28 @@
   "java.saveActions.organizeImports": true,
   // Gradle settings
   "java.import.gradle.home": "/home/vscode/.sdkman/candidates/gradle/current",
-  "java.import.gradle.java.home": "/home/vscode/.sdkman/candidates/java/current"
+  "java.import.gradle.java.home": "/home/vscode/.sdkman/candidates/java/current",
+  // Editor: 保存時に整形とインポート整理を行う
+  "editor.formatOnSave": true,
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  // ファイル整形の共通ルール（OS 差分による差分ノイズを防ぐ）
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  // Live Share でペアプロ中に見やすくする
+  "editor.rulers": [
+    100
+  ],
+  "todo-tree.general.tags": [
+    "TODO",
+    "FIXME",
+    "NOTE",
+    "HACK"
+  ]
 }
