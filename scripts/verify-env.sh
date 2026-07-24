@@ -40,10 +40,14 @@ echo "=== 1. Java ==="
 assert "Java major" "\"${EXPECTED_JAVA_MAJOR}" "$(java -version 2>&1 | head -1)"
 
 echo "=== 2. Gradle (SDKMAN) ==="
+# この repo は wrapper（gradlew）を配布せず、SDKMAN で入れた gradle を直接使う。
 assert "gradle" "Gradle ${EXPECTED_GRADLE}" "$(gradle --version 2>&1 | grep -E '^Gradle ')"
 
-echo "=== 3. Gradle Wrapper ==="
-assert "gradlew" "Gradle ${EXPECTED_GRADLE}" "$(./gradlew --version 2>&1 | grep -E '^Gradle ')"
+echo "=== 3. Gradle Wrapper pin ==="
+# gradlew は .gitignore 済みで新規チェックアウトには無いため、実行ではなく
+# gradle-wrapper.properties のピン留め（distributionUrl）を静的に検証する。
+assert "wrapper pin" "gradle-${EXPECTED_GRADLE}-" \
+  "$(grep -E '^distributionUrl=' gradle/wrapper/gradle-wrapper.properties)"
 
 echo "=== 4. Locale ==="
 assert "LANG" "$EXPECTED_LANG" "${LANG:-unset}"
@@ -52,10 +56,10 @@ echo "=== 5. Timezone ==="
 assert "TZ" "$EXPECTED_TZ" "${TZ:-unset}"
 
 echo "=== 6. Build & Test ==="
-if ./gradlew clean build test --console=plain > /tmp/gradle-build.log 2>&1; then
-  printf '  \033[32m✅ %-16s\033[0m gradlew clean build test\n' "BUILD"
+if gradle clean build test --console=plain > /tmp/gradle-build.log 2>&1; then
+  printf '  \033[32m✅ %-16s\033[0m gradle clean build test\n' "BUILD"
 else
-  printf '  \033[31m❌ %-16s\033[0m gradlew clean build test failed\n' "BUILD"
+  printf '  \033[31m❌ %-16s\033[0m gradle clean build test failed\n' "BUILD"
   tail -30 /tmp/gradle-build.log
   fail=1
 fi
