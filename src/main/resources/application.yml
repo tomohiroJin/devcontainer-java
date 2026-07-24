@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: buckpal
+
+  # ローカル DB は H2 のファイルモード。
+  # 再起動してもデータが残るので、SQL の練習結果が消えない。
+  # AUTO_SERVER=TRUE により、アプリ起動中でも別プロセス (H2 Shell 等) から同時接続できる。
+  datasource:
+    url: jdbc:h2:file:./data/buckpal;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  # ブラウザから SQL を打てる H2 コンソール
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      # スキーマは Flyway が管理するので Hibernate には作らせない (検証のみ)
+      ddl-auto: validate
+    # 学習用途: 発行される SQL を見えるようにする
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # 起動時に db/migration の V*.sql を適用する
+  flyway:
+    enabled: true
+    locations: classpath:db/migration

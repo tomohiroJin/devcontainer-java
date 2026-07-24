@@ -2,6 +2,11 @@
 
 コンテナで即座に Java 開発環境をセットアップ。最小限の設定で素早く開発開始。
 
+> ⚠️ **このブランチ (`feat/clean-architecture-stack`) は写経専用です。`main` にはマージしません。**
+> `main` は汎用の Java コンテナを保ち、このブランチだけ Spring Boot + Lombok + H2 + Flyway
+> などを追加して『手を動かしてわかるクリーンアーキテクチャ』(Tom Hombergs / buckpal) の
+> 写経に使います。スタックの詳細は [クリーンアーキテクチャ学習スタック](#クリーンアーキテクチャ学習スタック) を参照。
+
 ## クイックスタート
 
 ### 1. コンテナで開く
@@ -26,14 +31,68 @@ gradle build  # ビルド
 gradle test   # テスト実行
 ```
 
-### 4. サンプルコード確認
+### 4. アプリを起動
 
 ```bash
-# ソースコード
-cat src/main/java/HelloWorld.java
+gradle bootRun   # http://localhost:8080 で起動、Flyway が起動時にスキーマを適用
+```
 
-# テストコード
-cat src/test/java/HelloWorldTest.java
+## クリーンアーキテクチャ学習スタック
+
+『手を動かしてわかるクリーンアーキテクチャ』の buckpal を写経するための構成です。
+
+### 含まれるもの
+
+| 分類 | 内容 |
+|------|------|
+| フレームワーク | Spring Boot 3.5.16 (Web / Data JPA / Validation) |
+| 定型コード削減 | Lombok 1.18.46 (Spring Boot BOM 管理) |
+| ローカル DB | H2 2.3.x（ファイルモード、`h2-console` から SQL 実行可） |
+| DB マイグレーション | Flyway（`src/main/resources/db/migration/V*.sql`） |
+| アーキテクチャ検査 | ArchUnit（`ArchitectureTest` が層の依存方向を強制） |
+| ビルド品質 | Spotless (google-java-format) / Checkstyle / JaCoCo |
+
+### パッケージ構成（ヘキサゴナル）
+
+```
+src/main/java/com/example/buckpal/
+  BuckpalApplication.java
+  account/
+    domain/                      … エンティティ / 値オブジェクト（純粋な Java）
+    application/
+      port/in/                   … 入力ポート（ユースケース IF）
+      port/out/                  … 出力ポート（永続化などの抽象）
+      service/                   … ユースケース実装
+    adapter/
+      in/web/                    … REST コントローラ
+      out/persistence/           … JPA エンティティ / リポジトリ / マッパー
+  common/                        … @UseCase などの共通注釈
+```
+
+各層のパッケージには `package-info.java` で責務と依存ルールを記載しています。空の層は
+写経で埋めていきます。依存方向を破ると `gradle test`（ArchUnit）が失敗します。
+
+### H2 で SQL を試す
+
+アプリ起動後、ブラウザで h2-console を開きます。
+
+1. `gradle bootRun` でアプリを起動
+2. ブラウザで <http://localhost:8080/h2-console> を開く
+3. 接続情報を入力して Connect:
+   - **JDBC URL**: `jdbc:h2:file:./data/buckpal`
+   - **User Name**: `sa` / **Password**: （空）
+4. `SELECT * FROM account;` や `SELECT * FROM flyway_schema_history;` を実行
+
+> DB はファイルモード（`./data/buckpal`）なので再起動してもデータが残ります。`data/` は
+> `.gitignore` 済みです。`AUTO_SERVER=TRUE` によりアプリ起動中でも別接続から SQL を打てます。
+
+### ビルドとレポート
+
+```bash
+gradle build            # Spotless / Checkstyle / ArchUnit / JaCoCo を含む
+gradle spotlessApply    # 整形を自動修正
+gradle test             # テスト（ArchUnit 含む）
+# カバレッジ: build/reports/jacoco/test/html/index.html
 ```
 
 ## 環境仕様

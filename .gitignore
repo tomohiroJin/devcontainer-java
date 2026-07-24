@@ -34,3 +34,10 @@ gradlew.bat
 
 # Claude Code の作業ディレクトリ
 .claude/
+
+# H2 のローカル DB ファイル (jdbc:h2:file:./data/buckpal)
+data/
+*.db
+*.mv.db
+*.trace.db
+.h2.server.properties
