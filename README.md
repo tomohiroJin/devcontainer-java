@@ -50,6 +50,7 @@ gradle bootRun   # http://localhost:8080 で起動、Flyway が起動時にス�
 | ローカル DB | H2 2.3.x（ファイルモード、`h2-console` から SQL 実行可） |
 | DB マイグレーション | Flyway（`src/main/resources/db/migration/V*.sql`） |
 | アーキテクチャ検査 | ArchUnit（`ArchitectureTest` が層の依存方向を強制） |
+| スタック動作確認 | `SpringContextTest` / `LombokTest`（[動作確認テスト](#スタックの動作確認テスト)） |
 | ビルド品質 | Spotless (google-java-format) / Checkstyle / JaCoCo |
 
 ### パッケージ構成（ヘキサゴナル）
@@ -72,6 +73,51 @@ src/main/java/com/example/buckpal/
 各層のパッケージには `package-info.java` で責務と依存ルールを記載しています。空の層は
 写経で埋めていきます。依存方向を破ると `gradle test`（ArchUnit）が失敗します。
 
+### スタックの動作確認テスト
+
+写経を始める前に「土台が動いているか」を確認できるテストを用意しています。**ここが赤くなったら、
+写経したコードではなく環境側（依存関係・設定ファイル・マイグレーション）を疑ってください。**
+
+```
+src/test/java/com/example/buckpal/
+  SpringContextTest.java   … Spring Boot スタックの動作確認
+  LombokTest.java          … Lombok の動作確認
+  ArchitectureTest.java    … 層の依存方向の検査（ArchUnit）
+src/test/resources/
+  application-test.yml     … テスト用のプロファイル設定（インメモリ H2）
+```
+
+| テストクラス | 確認していること |
+|------|------|
+| `SpringContextTest` | `@SpringBootApplication` の起動 / `application.yml` の読み込み / `spring-boot-starter-web` の自動設定（`DispatcherServlet`）/ H2 への接続 / Flyway が V1 を適用済み / `account`・`activity` テーブルの存在 / Lombok が生成したコンストラクタでの DI |
+| `LombokTest` | `@Getter` `@Setter` `@RequiredArgsConstructor` / `@Value`（不変・equals・hashCode・toString）/ `@Builder`（`@Builder.Default` 含む）/ `@Slf4j` |
+| `ArchitectureTest` | ヘキサゴナルの依存方向（ドメインが Spring / JPA / アダプタに依存していないか等） |
+
+```bash
+gradle test                               # 全部（21 テスト）
+gradle test --tests '*SpringContextTest'  # Spring まわりだけ
+gradle test --tests '*LombokTest'         # Lombok まわりだけ
+# 結果レポート: build/reports/tests/test/index.html
+```
+
+#### Lombok は「コンパイルが通ること」が第一の検証
+
+Lombok はコンパイル時にコードを生成するため、注釈処理（`annotationProcessor 'org.projectlombok:lombok'`）が
+効いていなければ getter やコンストラクタが「存在しない」となり、`LombokTest` は**実行以前にコンパイルで失敗**します。
+各テストメソッドはその先の、生成されたコードの**挙動**（equals の結果、builder の既定値など）を確認しています。
+
+> `@Value` は Lombok（`lombok.Value`）と Spring（`org.springframework.beans.factory.annotation.Value`）で
+> 名前が衝突します。import を取り違えると意味がまったく変わるので注意してください。
+
+#### テスト用の DB 設定
+
+テストでは `@ActiveProfiles("test")` により `src/test/resources/application-test.yml` が
+`src/main/resources/application.yml` の上に重なり（プロファイル固有ファイルが後勝ち）、DB が
+インメモリ H2（`jdbc:h2:mem:buckpal-test`）に切り替わります。そのため:
+
+- 開発用のファイル DB `./data/buckpal` をテストが汚さない
+- 毎回まっさらなスキーマに対して Flyway が流れる（マイグレーションの検証になる）
+
 ### H2 で SQL を試す
 
 アプリ起動後、ブラウザで h2-console を開きます。
@@ -91,7 +137,7 @@ src/main/java/com/example/buckpal/
 ```bash
 gradle build            # Spotless / Checkstyle / ArchUnit / JaCoCo を含む
 gradle spotlessApply    # 整形を自動修正
-gradle test             # テスト（ArchUnit 含む）
+gradle test             # テスト（動作確認テスト / ArchUnit 含む）
 # カバレッジ: build/reports/jacoco/test/html/index.html
 ```
 
@@ -294,6 +340,35 @@ Dev Containers: Rebuild Container
 # またはキャッシュなしで再構築
 Dev Containers: Rebuild Without Cache
 ```
+
+### Spring / Lombok のクラスがエディタ上だけ赤くなる
+
+**症状:**
+
+```
+SpringBootApplication cannot be resolved to a type Java(16777218)
+```
+
+`gradle build` と `gradle test` は成功するのに、VS Code のエディタ上でだけ import が解決できない。
+
+**原因:** `build.gradle` に依存を追加した後、Java 言語サーバー（Red Hat の Language Support for Java）が
+プロジェクトを再インポートしておらず、クラスパスが古いまま残っている。
+
+**解決方法:** Command Palette (`Cmd+Shift+P`) から順に試します。
+
+```
+Java: Reload Projects                        # まずこれ
+Java: Clean Java Language Server Workspace   # 直らなければ（クラスパスを作り直して再起動）
+```
+
+`.vscode/settings.json` に以下を設定済みなので、通常は `build.gradle` を保存した時点で
+自動的に再インポートされます（既定値の `interactive` では通知を見逃すと取り残されます）。
+
+```json
+"java.configuration.updateBuildConfiguration": "automatic"
+```
+
+なお、`gradle test` が通るかどうかがビルドの正否です。**エディタの赤線だけで判断しないでください。**
 
 ### Java Language Server を再起動
 

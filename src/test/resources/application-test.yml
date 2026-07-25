@@ -1,0 +1,23 @@
+# テスト専用のプロファイル設定。
+# src/main/resources/application.yml を読み込んだ上に、この内容が上書きされる
+# (プロファイル固有ファイルが後勝ちになる Spring Boot の仕組み)。
+#
+# テストでは以下の理由からインメモリ H2 を使う:
+#   - ./data/buckpal (ファイル DB) を汚さない
+#   - テストごとにまっさらなスキーマから Flyway を流せる
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:buckpal-test;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  # テスト中は h2-console (Web UI) は不要
+  h2:
+    console:
+      enabled: false
+
+  # テストログを読みやすくするため SQL は出さない
+  jpa:
+    show-sql: false
