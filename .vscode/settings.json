@@ -1,8 +1,11 @@
 {
   "cSpell.words": [
     "Anson",
+    "buckpal",
     "ctxt",
     "devcontainer",
+    "flyway",
+    "jacoco",
     "dpkg",
     "eamodio",
     "errorlens",
@@ -51,6 +54,9 @@
   // Gradle settings
   "java.import.gradle.home": "/home/vscode/.sdkman/candidates/gradle/current",
   "java.import.gradle.java.home": "/home/vscode/.sdkman/candidates/java/current",
+  // build.gradle の変更を検知したら確認なしでプロジェクトを再インポートする
+  // (既定の interactive では通知を見逃すとクラスパスが古いまま残る)
+  "java.configuration.updateBuildConfiguration": "automatic",
   // Editor: 保存時に整形とインポート整理を行う
   "editor.formatOnSave": true,
   "[java]": {

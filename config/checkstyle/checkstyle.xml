@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  学習用途向けの軽量 Checkstyle 設定。
+  細かな整形は Spotless (google-java-format) が担保するので、ここでは
+  「設計・可読性に関わる実質的な指摘」に絞っている。build.gradle 側で
+  ignoreFailures=true としているため、違反はビルドを止めず警告として報告される。
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+
+    <!-- ファイル単位のチェック -->
+    <module name="FileLength">
+        <property name="max" value="800"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- import 周り -->
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+        <module name="AvoidStarImport"/>
+
+        <!-- 空ブロック / ネスト -->
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+        <module name="NeedBraces"/>
+
+        <!-- 可読性・バグの温床 -->
+        <module name="EqualsHashCode"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="StringLiteralEquality"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="FallThrough"/>
+
+        <!-- メソッドの複雑度 (肥大化の早期検知) -->
+        <module name="CyclomaticComplexity">
+            <property name="max" value="12"/>
+        </module>
+    </module>
+</module>
