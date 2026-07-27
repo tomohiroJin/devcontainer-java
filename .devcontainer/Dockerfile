@@ -90,10 +90,11 @@ RUN touch /home/vscode/.sudo_as_admin_successful
 # SDKMAN!のインストール
 RUN curl -s "https://get.sdkman.io" | bash
 
-# SDKMAN! を使用して Java 25 と Gradle 最新版をインストール
+# SDKMAN! を使用して Java 25 (LTS) と Gradle をインストール
+# バージョンを固定し、イメージを再ビルドしても同じ環境が再現されるようにする
 RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
   sdk install java 25-open && \
-  sdk install gradle && \
+  sdk install gradle 9.6.1 && \
   sdk default java 25-open"
 
 # ========================================
