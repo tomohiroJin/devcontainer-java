@@ -11,7 +11,7 @@
 - `docker build -t devcontainer-java:issue-7 .devcontainer` 成功。ベースの manifest digest は `sha256:95e350ad1eb738f943e141640f7e3d797e483359a3b33c3864255bfd1ad71f8a`。生成イメージ ID は `sha256:7cdc8d431e6ab6d151022148000a6026ba6977c3115dc6e52ef0ee0dbc659b4b`。
 - 完成イメージ内で `bash scripts/verify-env.sh` 成功。Java 25.0.5、Gradle 9.8.2、ja_JP.UTF-8、Asia/Tokyo の検証と Wrapper による `clean build` がすべて成功（JUnit 7件）。一時 Gradle キャッシュへの配布取得から開始し、ZIP チェックサムと依存チェックサムも検証。
 - Trivy **0.76.2**、2026-11-05 取得の DB、`trivy fs --include-dev-deps --scanners vuln --format json ... .`: `gradle.lockfile` の17依存（Mockito と Byte Buddy/Objenesis を含む）、検出0件。
-- 同ツールで `trivy image --scanners vuln --format json ... devcontainer-java:issue-7`: Ubuntu 24.04 パッケージ、CRITICAL 0 / HIGH 0 / MEDIUM 76 / LOW 20。修正版が DB に記載された残件は0件。言語依存はコンテナに同梱せずビルド時に解決するため、上記 lockfile 監査で別途カバー。
+- 同ツールで `trivy image --scanners vuln --format json ... devcontainer-java:issue-7`: Ubuntu 24.04 パッケージ、CRITICAL 0 / HIGH 0 / MEDIUM 76 / LOW 20。修正版が DB に記載された残件は0件。言語依存はコンテナに同梱せずビルド時に解決するため、上記 lockfile 監査で別途カバー。Temurin JDK バイナリ本体はこの結果の対象ではなく、JDK の脆弱性なしを意味しません。
 - `mockitoAgent` を含む全 configuration をロックし、agent JAR と追加依存の SHA-256 を記録。Gradle の解決戦略変更エラーを防ぐため、ロックの有効化を agent configuration の解決より先に実行。
 - Bash 構文、JSON/YAML 読み込み、`git diff --check` 成功。
 
