@@ -1,120 +1,21 @@
-# ベースイメージ
-FROM ubuntu:24.04
+FROM eclipse-temurin:25.0.5_8-jdk-noble
 
-# 非対話型で apt-get を実行するための環境変数設定
 ENV DEBIAN_FRONTEND=noninteractive
-
-# ========================================
-# Timezone configuration
-# ========================================
-ENV TZ=Asia/Tokyo
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
-    && echo $TZ > /etc/timezone
-
-# 必要なパッケージのインストール
-RUN apt-get update && apt-get install -y \
-  # Version control
-  git \
-  # SSL/Certificates
-  ca-certificates \
-  # Compression
-  zip \
-  unzip \
-  # Network tools
-  curl \
-  wget \
-  net-tools \
-  iputils-ping \
-  # Text editors
-  vim \
-  nano \
-  # Utilities
-  less \
-  jq \
-  tree \
-  htop \
-  procps \
-  # Build tools
-  build-essential \
-  # Locale and timezone (for later steps)
-  locales \
-  tzdata \
-  # User management (for later steps)
-  sudo \
-  && rm -rf /var/lib/apt/lists/*
-
-# ========================================
-# Finalize timezone setup
-# ========================================
-RUN dpkg-reconfigure -f noninteractive tzdata
-
-# ========================================
-# Locale Configuration
-# ========================================
-RUN sed -i '/ja_JP.UTF-8/s/^# //g' /etc/locale.gen \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+    git ca-certificates curl unzip locales tzdata sudo \
+    && sed -i '/ja_JP.UTF-8/s/^# //g' /etc/locale.gen \
     && locale-gen ja_JP.UTF-8 \
-    && update-locale LANG=ja_JP.UTF-8
-
-ENV LANG=ja_JP.UTF-8
-ENV LANGUAGE=ja_JP:ja
-ENV LC_ALL=ja_JP.UTF-8
-
-# ========================================
-# Create Non-Root User
-# ========================================
-ARG USERNAME=vscode
+    && rm -rf /var/lib/apt/lists/*
+ENV LANG=ja_JP.UTF-8 LANGUAGE=ja_JP:ja LC_ALL=ja_JP.UTF-8 TZ=Asia/Tokyo
+RUN ln -snf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+    && echo Asia/Tokyo > /etc/timezone
 ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-# Rename existing ubuntu user to vscode if it exists, otherwise create vscode user
-RUN if id -u ubuntu > /dev/null 2>&1; then \
-        usermod -l $USERNAME ubuntu \
-        && groupmod -n $USERNAME ubuntu \
-        && usermod -d /home/$USERNAME -m $USERNAME; \
-    else \
-        groupadd --gid $USER_GID $USERNAME \
-        && useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USERNAME; \
-    fi \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-
-# ========================================
-# Switch to Non-Root User
-# ========================================
-USER vscode
-WORKDIR /home/vscode
-
-# Suppress sudo informational message
-RUN touch /home/vscode/.sudo_as_admin_successful
-
-# SDKMAN!のインストール
-RUN curl -s "https://get.sdkman.io" | bash
-
-# SDKMAN! を使用して Java 25 (LTS) と Gradle をインストール
-# バージョンを固定し、イメージを再ビルドしても同じ環境が再現されるようにする
-RUN bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
-  sdk install java 25-open && \
-  sdk install gradle 9.6.1 && \
-  sdk default java 25-open"
-
-# ========================================
-# Environment Variables
-# ========================================
-ENV JAVA_HOME=/home/vscode/.sdkman/candidates/java/current
-ENV GRADLE_HOME=/home/vscode/.sdkman/candidates/gradle/current
-ENV PATH=$PATH:$JAVA_HOME/bin:$GRADLE_HOME/bin
-
-# ========================================
-# Shell Configuration
-# ========================================
-RUN echo "source /home/vscode/.sdkman/bin/sdkman-init.sh" >> /home/vscode/.bashrc
-
-# ========================================
-# Working Directory
-# ========================================
-WORKDIR /workspaces
-
-# ========================================
-# Cleanup
-# ========================================
+ARG USER_GID=1000
+RUN if id ubuntu >/dev/null 2>&1; then \
+      usermod -l vscode -d /home/vscode -m ubuntu && groupmod -n vscode ubuntu; \
+    else groupadd --gid "$USER_GID" vscode && useradd --uid "$USER_UID" --gid "$USER_GID" -m -s /bin/bash vscode; fi \
+    && echo 'vscode ALL=(root) NOPASSWD:ALL' > /etc/sudoers.d/vscode \
+    && chmod 0440 /etc/sudoers.d/vscode
 ENV DEBIAN_FRONTEND=
+USER vscode
+WORKDIR /workspaces

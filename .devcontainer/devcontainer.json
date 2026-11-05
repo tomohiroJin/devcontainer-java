@@ -1,70 +1,23 @@
 {
-  "name": "Gradle with Java DevContainer",
+  "name": "Java 25 / Gradle",
   "build": {
     "dockerfile": "Dockerfile"
   },
   "remoteUser": "vscode",
   "containerEnv": {
-    "JAVA_HOME": "/home/vscode/.sdkman/candidates/java/current",
-    "GRADLE_HOME": "/home/vscode/.sdkman/candidates/gradle/current",
     "LANG": "ja_JP.UTF-8",
     "TZ": "Asia/Tokyo"
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        // ========================================
-        // Essential: Java Development
-        // ========================================
         "vscjava.vscode-java-pack",
-        "redhat.vscode-xml",
-        "EditorConfig.EditorConfig",
-
-        // ========================================
-        // Essential: Documentation
-        // ========================================
-        "yzhang.markdown-all-in-one",
-        "DavidAnson.vscode-markdownlint",
-
-        // ========================================
-        // Essential: Code Quality
-        // ========================================
-        "streetsidesoftware.code-spell-checker",
-
-        // ========================================
-        // Recommended: Additional Tools
-        // ========================================
-        "shengchen.vscode-checkstyle",
-        "mhutchie.git-graph",
-        "eamodio.gitlens",
-        "usernamehw.errorlens",
-        "Gruntfuggly.todo-tree",
-        "redhat.vscode-yaml",
-        "humao.rest-client",
-
-        // ========================================
-        // Collaboration: Live Share
-        // ========================================
-        "MS-vsliveshare.vsliveshare"
-      ],
-      "settings": {
-        // ========================================
-        // Live Share
-        // ========================================
-        // 安定版の機能セットのみを使う
-        "liveshare.featureSet": "stable",
-        // 参加者を都度承認してから接続させる
-        "liveshare.guestApprovalRequired": true,
-        "liveshare.anonymousGuestApproval": "prompt",
-        "liveshare.connectionMode": "auto",
-        // 参加者にもホストのターミナルを表示する（読み取り専用が既定）
-        "liveshare.showInStatusBar": "always"
-      }
+        "EditorConfig.EditorConfig"
+      ]
     }
   },
   "mounts": [
     "source=devcontainer-java-gradle-cache,target=/home/vscode/.gradle,type=volume"
   ],
-  "forwardPorts": [],
-  "postCreateCommand": "bash -c 'sudo chown -R vscode:vscode /home/vscode/.gradle && source ~/.sdkman/bin/sdkman-init.sh && echo \"=== Environment Setup Verification ===\" && echo && echo \"=== Java Version ===\" && java -version && echo && echo \"=== Timezone ===\" && date && echo && echo \"=== Locale ===\" && locale'"
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.gradle && ./gradlew --version"
 }

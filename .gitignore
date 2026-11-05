@@ -29,8 +29,8 @@ hs_err_pid*
 replay_pid*
 
 # It is unnecessary to create it here as it will be generated during gradle init.
-gradlew
-gradlew.bat
 
 # Claude Code の作業ディレクトリ
 .claude/
+
+!gradle/wrapper/gradle-wrapper.jar
