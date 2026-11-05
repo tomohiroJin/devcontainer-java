@@ -20,8 +20,6 @@ jobs:
       - name: Verify wrapper JAR
         run: echo '3b8a25775a69158b5ad2b1d17a80a88dc7b40a352a73eb27d06c612a7ce68e98  gradle/wrapper/gradle-wrapper.jar' | sha256sum -c -
       - run: ./gradlew --no-daemon clean build
-      - name: Prepare container build cache
-        run: chmod -R a+rwX build .gradle
       - uses: aquasecurity/setup-trivy@3fb12ec12f41e471780db15c232d5dd185dcb514 # v0.2.6
         with:
           version: v0.76.2
@@ -32,7 +30,15 @@ jobs:
           trivy fs --include-dev-deps --scanners vuln --severity HIGH,CRITICAL --exit-code 1 .
       - run: docker build --pull -t devcontainer-java:ci .devcontainer
       - name: Verify container environment and build
-        run: docker run --rm -v "$PWD:/workspaces/project" -w /workspaces/project devcontainer-java:ci bash scripts/verify-env.sh
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp/ci-home \
+            --env GRADLE_USER_HOME=/tmp/ci-gradle \
+            --volume "$PWD:/workspaces/project" \
+            --workdir /workspaces/project \
+            devcontainer-java:ci \
+            bash -c 'mkdir -p "$HOME" "$GRADLE_USER_HOME" && bash scripts/verify-env.sh'
       - name: Audit OS and runtime
         run: |
           trivy image --scanners vuln --format json --output container-audit.json devcontainer-java:ci

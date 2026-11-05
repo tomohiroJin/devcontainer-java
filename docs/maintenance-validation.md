@@ -24,3 +24,11 @@ MEDIUM/LOW のパッケージ別 CVE・導入版・状態は [security-findings.
 この管理環境では Java は HTTPS_PROXY を自動使用しないため、検証コマンドにのみ Java のプロキシシステムプロパティを渡し、セッション CA を一時 trust store に取り込みました。コンテナ実行時は Docker が設定した到達可能なプロキシと read-only trust store mount を使用。資格情報・プロキシ設定・セッション証明書は Repository やイメージに保存していません。
 
 GitHub Actions の実行と VS Code GUI（補完、デバッグ、Testing ビュー、保存時整形）はこの CLI セッションでは未確認です。README の手動確認手順を用いて確認してください。環境の公開、リモート push、Issue のクローズは行っていません。
+
+## GitHub Actions の UID 差異への対応
+
+CI の完成コンテナ検証では、runner の UID/GID とコンテナ既定ユーザーの UID/GID が異なり、Gradle がマウントしたプロジェクトルートへの書き込みを拒否しました。CI の `docker run` をホストと同じ UID/GID で実行し、書き込み可能な一時 `HOME` / `GRADLE_USER_HOME` を指定します。プロジェクトの一部だけを全ユーザー書き込み可能にする処理は除去しました。
+
+UID/GID 1001:1001 所有の一時チェックアウトを用意し、同じ UID/GID のコンテナでワークフローと同じ環境・コマンドを検証しました。セッション CA/proxy は従来同様テストにのみ注入しています。
+
+結果: `scripts/verify-env.sh` 成功、JUnit 7件すべて成功。actionlint と差分チェックも成功。
