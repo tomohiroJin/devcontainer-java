@@ -19,6 +19,7 @@ Java は Temurin 25 LTS、Gradle は **同梱の Wrapper** を使います。グ
 | Gradle | 9.6.1、Wrapper properties のみ | 9.8.2、完全な Wrapper | 公式 current stable、JDK 25 実行対応、配布 ZIP の SHA-256 検証 |
 | Commons Lang | 3.20.0 | 3.21.0 | Maven Central の最新 release |
 | JUnit Jupiter/Platform | 6.1.2 | 6.1.3 | Maven Central の最新 release |
+| Mockito Core/JUnit integration/Java agent | 5.23.0 | 5.24.0 | 追加された Stub/Mock/Spy テストを維持し Maven Central の最新 release に統一 |
 
 調査日は **2026-11-05**。JDK は Java 26/27 などの短期リリースより既存の LTS 方針を優先します。パッチは定期更新し、次の LTS 移行は別途互換性を検証します。コンテナ OS の修正は `apt-get upgrade` と `docker build --pull` で取り込みます。タグや OS パッケージの内容は更新されるため、ビット単位の再現性ではありません。
 
@@ -26,10 +27,13 @@ Java は Temurin 25 LTS、Gradle は **同梱の Wrapper** を使います。グ
 - [Adoptium 現行 JDK メタデータ](https://api.adoptium.net/v3/assets/latest/25/hotspot?architecture=x64&image_type=jdk&os=linux)
 - [Gradle current stable](https://services.gradle.org/versions/current)、[Java 互換表](https://docs.gradle.org/current/userguide/compatibility.html)
 - [Commons Lang リリース情報](https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/maven-metadata.xml)
+- [Mockito リリース情報](https://repo.maven.apache.org/maven2/org/mockito/mockito-core/maven-metadata.xml)
 - [JUnit リリース情報](https://repo.maven.apache.org/maven2/org/junit/jupiter/junit-jupiter/maven-metadata.xml)
 - [Ubuntu リリースとサポート期間](https://ubuntu.com/about/release-cycle)
 
-`gradle.lockfile` で推移的依存も固定し、`gradle/verification-metadata.xml` で取得ファイルのチェックサムを検証します。更新時は以下を実行し、公式情報と差分を照合してください。生成したチェックサムは初回取得内容に対する固定であり、提供元の正当性確認に代わるものではありません。
+追加された Mockito の Stub/Mock/Spy テストはそのまま保持しています。JDK 25 の動的自己アタッチに依存しないよう、`mockitoAgent` configuration から同じ版の Mockito を `-javaagent` で明示的に接続します。
+
+`gradle.lockfile` で `mockitoAgent` を含む推移的依存も固定し、`gradle/verification-metadata.xml` で取得ファイルのチェックサムを検証します。更新時は以下を実行し、公式情報と差分を照合してください。生成したチェックサムは初回取得内容に対する固定であり、提供元の正当性確認に代わるものではありません。
 
 ```bash
 ./gradlew wrapper --gradle-version NEW_VERSION --distribution-type bin --gradle-distribution-sha256-sum OFFICIAL_SHA256
