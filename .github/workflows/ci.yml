@@ -1,0 +1,73 @@
+name: Java build and security
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: '25.0.5+8'
+      - name: Verify wrapper JAR
+        run: echo '3b8a25775a69158b5ad2b1d17a80a88dc7b40a352a73eb27d06c612a7ce68e98  gradle/wrapper/gradle-wrapper.jar' | sha256sum -c -
+      - run: ./gradlew --no-daemon clean build
+      - uses: aquasecurity/setup-trivy@3fb12ec12f41e471780db15c232d5dd185dcb514 # v0.2.6
+        with:
+          version: v0.76.2
+          cache: true
+      - name: Audit resolved Java dependencies
+        run: |
+          trivy fs --include-dev-deps --scanners vuln --format json --output java-audit.json .
+          trivy fs --include-dev-deps --scanners vuln --severity HIGH,CRITICAL --exit-code 1 .
+      - run: docker build --pull -t devcontainer-java:ci .devcontainer
+      - name: Verify container environment and build
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp/ci-home \
+            --env GRADLE_USER_HOME=/tmp/ci-gradle \
+            --volume "$PWD:/workspaces/project" \
+            --workdir /workspaces/project \
+            devcontainer-java:ci \
+            bash -c 'mkdir -p "$HOME" "$GRADLE_USER_HOME" && bash scripts/verify-env.sh'
+      - name: Verify vscode user and configured postCreateCommand
+        run: |
+          post_create="$(python3 -c 'import json; print(json.load(open(".devcontainer/devcontainer.json"))["postCreateCommand"])')"
+          docker run --rm \
+            --user vscode \
+            --volume "$PWD:/source:ro" \
+            --volume java-vscode-gradle:/home/vscode/.gradle \
+            devcontainer-java:ci \
+            bash -c 'set -e; test "$(id -un)" = vscode; mkdir /tmp/project; cp -R /source/gradlew /source/gradle /tmp/project/; cd /tmp/project; bash -c "$1"' -- "$post_create"
+      - name: Audit OS packages
+        run: |
+          trivy image --scanners vuln --format json --output container-audit.json devcontainer-java:ci
+          trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 devcontainer-java:ci
+      - name: Summarize actual test and audit results
+        if: always()
+        run: |
+          python3 scripts/summarize-validation.py | tee validation-summary.txt
+          cat validation-summary.txt >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: java-validation
+          path: |
+            java-audit.json
+            container-audit.json
+            validation-summary.txt
+            build/test-results/test
+          if-no-files-found: warn
