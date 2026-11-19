@@ -27,7 +27,7 @@ def audit_summary(name):
     if not isinstance(results, list):
         return f"{name}: scan results unavailable"
     severities = collections.Counter(
-        str(finding.get("Severity", "UNKNOWN")) for result in results
+        str(finding.get("Severity") or "UNKNOWN") for result in results
         for finding in (result.get("Vulnerabilities") or [])
     )
     packages = sum(len(result["Packages"]) for result in results if isinstance(result.get("Packages"), list))
