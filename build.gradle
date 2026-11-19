@@ -34,5 +34,7 @@ dependencyLocking {
 
 test {
     useJUnitPlatform()
-    jvmArgs "-javaagent:${configurations.mockitoAgent.singleFile}"
+    // Resolve the agent lazily so unrelated tasks (wrapper, help) do not need the dependency cache.
+    inputs.files(configurations.mockitoAgent).withPropertyName('mockitoAgent')
+    jvmArgumentProviders.add({ ["-javaagent:${configurations.mockitoAgent.singleFile}"] } as CommandLineArgumentProvider)
 }

@@ -19,8 +19,11 @@ for name in ("java-audit.json", "container-audit.json"):
     if not path.exists():
         print(f"{name}: output unavailable")
         continue
-    report = json.loads(path.read_text())
-    if not isinstance(report.get("Results"), list):
+    try:
+        report = json.loads(path.read_text())
+    except ValueError:
+        report = None
+    if not isinstance(report, dict) or not isinstance(report.get("Results"), list):
         print(f"{name}: scan results unavailable")
         continue
     results = report["Results"]

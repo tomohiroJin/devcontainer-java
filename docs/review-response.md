@@ -5,7 +5,7 @@
 | 番号 | 判断・対応 | 確認方法・理由 |
 | --- | --- | --- |
 | 1 | 採用。`scripts/refresh-dependencies.sh` と README にメンテナーの候補生成・独立照合・レビュー・同一PRへのコミット手順を追加 | 通常 CI は厳格な依存検証を継続。更新スクリプトはCIから呼ばず、候補生成後にオフラインbuild・差分表示。Dependabot自身のlockfile対応を前提にしない |
-| 2 | 採用。Temurin の公式manifest digestをDockerfileに固定 | `docker buildx imagetools inspect eclipse-temurin:25.0.5_8-jdk-noble` で `sha256:95e350ad1eb738f943e141640f7e3d797e483359a3b33c3864255bfd1ad71f8a` を再確認。apt更新によるイメージの可変性は明記 |
+| 2 | 採用。Temurin の公式manifest digestをDockerfileに固定 | `docker buildx imagetools inspect eclipse-temurin:25.0.5_8-jdk-noble` で `sha256:95e350ad1eb738f943e141640f7e3d797e483359a3b33c3864255bfd1ad71f8a` を再確認（2026-11-05 当時。2026-11-19 に `sha256:8599ea2d…` へ更新）。apt更新によるイメージの可変性は明記 |
 | 3 | 採用。pushをmainに限定、workflow/ref単位のconcurrency追加 | actionlintによる検証。PRで実行し、ブランチへのpushとの二重実行を避ける。2回目の指摘を受けてグループにイベント種別を追加（下記） |
 | 4 | 提案する緩和は不採用。未修正版を含むHIGH/CRITICALは引き続き失敗 | 無関係なPRを止める影響をREADMEに明記。ignore-unfixedや期限なし除外を自動導入しない。発生時は影響・修正版・回避策を確認してメンテナーが判断 |
 | 5 | 採用。Trivyの対象をOSパッケージとGradle依存へ訂正 | JDKバイナリの監査/無脆弱性を主張しない。Temurin公式セキュリティ情報・タグ/digestを確認しCIのJava版と同期。XML/JSONから実測件数をログ・Job Summary・artifactへ出力 |
@@ -52,8 +52,20 @@
 
 - Gradle 9.8.2 → 9.9.1（Wrapper を 2 段階再生成、CI の JAR 検証値と `verify-env.sh` を同期）。
 - Commons Lang 3.21.0 → 3.22.0（ロック・検証メタデータを再生成し、古い項目を削除。チェックサムは Maven Central から直接取得した artifact と独立照合）。
-- Temurin タグ再ビルドに伴う Dockerfile の digest 更新（`sha256:8599ea2d…`、JDK は 25.0.5+8 のまま）。
+- Temurin タグの index 更新に伴う Dockerfile の digest 更新（`sha256:8599ea2d…`、JDK は 25.0.5+8 のまま）。2026-11-18 GA の Temurin 25.0.5.1+2 は公式イメージ未公開のため見送り（理由と再確認時期は README・検証記録に記載）。
 - actions/setup-java v6.3.0、aquasecurity/setup-trivy v0.3.1 へのピン更新。
 - 残存検出項目の再監査と `docs/security-findings.tsv` の更新（MEDIUM 87 / LOW 37、修正版あり 0）。次回確認期限 2026-12-03。
 
 詳細は [検証記録](maintenance-validation.md) を参照してください。
+
+## 3 回目の敵対的検証（コミット 0991993）への対応
+
+| 番号 | 判断・対応 | 確認方法・理由 |
+| --- | --- | --- |
+| 1 | 採用（記録）。Temurin 25.0.5.1+2 GA（2026-11-18）を確認し、公式 `eclipse-temurin` イメージ未公開のため 25.0.5+8 を維持する理由と再確認時期を README・検証記録に記載 | `git ls-remote --tags` と配布 asset のメタデータで GA を確認。Docker Hub の tags API で 25.0.5.1 は 0 件。コンテナと CI の JDK を同一版に保つ |
+| 2 | 採用。「2026-11-19 に再ビルド」を「index が 2026-11-19 に更新、amd64 イメージは 2026-11-11 ビルド」に訂正 | amd64 config の `created` を確認 |
+| 3 | PR #8 本文の乖離は取り込み時に更新（2 回目 #4 と同じ扱い） | 本ブランチの PR 本文に更新内容を記載 |
+| 4 | 採用。`build.gradle` の Mockito agent を `jvmArgumentProviders` で遅延解決し、agent JAR を test の入力に登録 | 空キャッシュの `--offline help` が成功し、`-i` ログで `-javaagent` が付与されることを確認。ロック・検証メタデータに変更なし |
+| 5 | 採用。`summarize-validation.py` が不正な JSON でも `scan results unavailable` を出力して終了コード 0 | 不正 JSON と実レポートの両方で動作確認 |
+| 6 | 採用。1 回目対応表 #2 の digest に「当時」の注記を追加 | 現行 Dockerfile との食い違いに見えないようにする |
+| 7 | 記録。chroot 再現はタイムゾーンとユーザー名変更を適用していないことを検証記録に明記。CI の `trivy image` 結果（143 件、MEDIUM 87 / LOW 37）と一致したことも記録 | CI run 44576003514 の Job Summary |

@@ -15,7 +15,7 @@ Java は Temurin 25 LTS、Gradle は **同梱の Wrapper** を使います。グ
 | 対象 | 変更前 | 採用版 | 理由 |
 | --- | --- | --- | --- |
 | ベース OS | Ubuntu 24.04 | Ubuntu 24.04 noble | LTS の安定性を維持、標準セキュリティ保守は 2029年5月まで |
-| JDK | SDKMAN! `25-open` | Eclipse Temurin 25.0.5+8 LTS | 配布元・パッチを明示した公式イメージ。25 の toolchain を維持 |
+| JDK | SDKMAN! `25-open` | Eclipse Temurin 25.0.5+8 LTS | 配布元・パッチを明示した公式イメージ。25 の toolchain を維持。2026-11-18 GA の 25.0.5.1+2 は公式 `eclipse-temurin` イメージが未公開のため見送り、次回確認（2026-12-03）で再評価 |
 | Gradle | 9.6.1、Wrapper properties のみ | 9.9.1、完全な Wrapper | 公式 current stable、JDK 25 実行対応、配布 ZIP の SHA-256 検証 |
 | Commons Lang | 3.20.0 | 3.22.0 | Maven Central の最新 release |
 | JUnit Jupiter/Platform | 6.1.2 | 6.1.3 | Maven Central の最新安定 release。6.2.0-M1 はマイルストーンのため不採用 |
