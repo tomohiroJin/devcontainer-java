@@ -16,12 +16,12 @@ Java は Temurin 25 LTS、Gradle は **同梱の Wrapper** を使います。グ
 | --- | --- | --- | --- |
 | ベース OS | Ubuntu 24.04 | Ubuntu 24.04 noble | LTS の安定性を維持、標準セキュリティ保守は 2029年5月まで |
 | JDK | SDKMAN! `25-open` | Eclipse Temurin 25.0.5+8 LTS | 配布元・パッチを明示した公式イメージ。25 の toolchain を維持 |
-| Gradle | 9.6.1、Wrapper properties のみ | 9.8.2、完全な Wrapper | 公式 current stable、JDK 25 実行対応、配布 ZIP の SHA-256 検証 |
-| Commons Lang | 3.20.0 | 3.21.0 | Maven Central の最新 release |
-| JUnit Jupiter/Platform | 6.1.2 | 6.1.3 | Maven Central の最新 release |
+| Gradle | 9.6.1、Wrapper properties のみ | 9.9.1、完全な Wrapper | 公式 current stable、JDK 25 実行対応、配布 ZIP の SHA-256 検証 |
+| Commons Lang | 3.20.0 | 3.22.0 | Maven Central の最新 release |
+| JUnit Jupiter/Platform | 6.1.2 | 6.1.3 | Maven Central の最新安定 release。6.2.0-M1 はマイルストーンのため不採用 |
 | Mockito Core/JUnit integration/Java agent | 5.23.0 | 5.24.0 | 追加された Stub/Mock/Spy テストを維持し Maven Central の最新 release に統一 |
 
-調査日は **2026-11-05**。JDK は Java 26/27 などの短期リリースより既存の LTS 方針を優先します。パッチは定期更新し、次の LTS 移行は別途互換性を検証します。コンテナ OS の修正は `apt-get upgrade` と `docker build --pull` で取り込みます。ベースイメージはタグと manifest digest を固定します。OS パッケージはビルド時に更新されるため、ビット単位の再現性ではありません。
+初回調査日は 2026-11-05、再調査日は **2026-11-19**。JDK は Java 26/27 などの短期リリースより既存の LTS 方針を優先します。パッチは定期更新し、次の LTS 移行は別途互換性を検証します。コンテナ OS の修正は `apt-get upgrade` と `docker build --pull` で取り込みます。ベースイメージはタグと manifest digest を固定します。同じタグが再ビルドされて digest が変わることがあるため、Dependabot の docker 更新または手動で digest を追従します。OS パッケージはビルド時に更新されるため、ビット単位の再現性ではありません。
 
 - [Temurin 25 公式リリース](https://github.com/adoptium/temurin25-binaries/releases)
 - [Adoptium 現行 JDK メタデータ](https://api.adoptium.net/v3/assets/latest/25/hotspot?architecture=x64&image_type=jdk&os=linux)
@@ -41,7 +41,7 @@ Dependabot の Gradle PR は更新候補です。未登録バージョンは通�
 bash scripts/refresh-dependencies.sh
 ```
 
-これは `mockitoAgent` を含むロックと **候補** の SHA-256 を生成し、オフライン build と差分表示まで行います。生成値を自動承認しません。新しい artifact の配布元・公式公開ハッシュ/署名・バージョンを独立照合し、追加された POM/BOM を含むメタデータをレビューしてから、監査結果とともに同じ PR にコミットしてください。通常 CI はこのスクリプトや `--write-verification-metadata` を実行せず、未登録/改変依存を拒否します。Dependabot の lockfile 更新可否に依存せず、この確認を必須とします。
+これは `mockitoAgent` を含むロックと **候補** の SHA-256 を生成し、オフライン build と差分表示まで行います。ロックは厳格な制約として働くため、意図的なダウングレードもこのスクリプトを通してロックに反映してください。古いバージョンの不要になったチェックサム項目は手動で削除し、キャッシュのない状態での build で検証します。生成値を自動承認しません。新しい artifact の配布元・公式公開ハッシュ/署名・バージョンを独立照合し、追加された POM/BOM を含むメタデータをレビューしてから、監査結果とともに同じ PR にコミットしてください。通常 CI はこのスクリプトや `--write-verification-metadata` を実行せず、未登録/改変依存を拒否します。Dependabot の lockfile 更新可否に依存せず、この確認を必須とします。
 
 Gradle 自体の更新では、公式の **配布 ZIP と Wrapper JAR の SHA-256** を先に取得・照合します。`NEW_VERSION` と `OFFICIAL_SHA256` は実際の値に置き換えてください。
 
@@ -69,7 +69,7 @@ Dev Container の自動導入と `.vscode/extensions.json` の推奨を一致さ
 
 ## セキュリティと CI
 
-GitHub Actions は main への push/PR/毎週月曜/手動でビルド、Wrapper JAR の検証、コンテナ環境確認、Trivy の Gradle 依存・OS パッケージスキャンを実行します。同一 ref の古い実行は concurrency でキャンセルします。Temurin JDK バイナリ本体はこの Trivy 検査の対象ではありません。JDK は公式セキュリティ情報とタグ/digest の更新を確認し、CI の Java 指定と同期します。HIGH/CRITICAL を検出した場合は未修正版でも PR/週次 CI を失敗させます。これは意図した方針です。発生時は影響と修正版/回避策を調査し、必要ならメンテナーが明示的に方針を見直します。一律の ignore-unfixed や期限なし除外は追加しません。Dependabot は Gradle/Docker/Actions を毎週確認します。Actions はコミット SHA を固定しています。専用の Dev Container Features はありません。CI は runner 所有権での全テストに加え、`vscode`・sudo・実際の postCreateCommand・Gradle キャッシュボリュームも smoke 検証します。Dev Containers クライアントによるマウント設定/GUI の完全な検証は引き続き手動です。テスト件数と監査の全 severity 件数は実際の XML/JSON を集計し、ログ・Job Summary・artifact に保存します。
+GitHub Actions は main への push/PR/毎週月曜/手動でビルド、Wrapper JAR の検証、コンテナ環境確認、Trivy の Gradle 依存・OS パッケージスキャンを実行します。concurrency グループはイベント種別と ref の組で分け、PR では同一 ref の古い実行をキャンセルし、main への push・定期・手動実行は互いに取り消しません。Temurin JDK バイナリ本体はこの Trivy 検査の対象ではありません。JDK は公式セキュリティ情報とタグ/digest の更新を確認し、CI の Java 指定と同期します。HIGH/CRITICAL を検出した場合は未修正版でも PR/週次 CI を失敗させます。これは意図した方針です。発生時は影響と修正版/回避策を調査し、必要ならメンテナーが明示的に方針を見直します。一律の ignore-unfixed や期限なし除外は追加しません。Dependabot は Gradle/Docker/Actions を毎週確認します。Actions はコミット SHA を固定しています。専用の Dev Container Features はありません。CI は runner 所有権での全テストに加え、`vscode`・sudo・実際の postCreateCommand・Gradle キャッシュボリュームも smoke 検証します。Dev Containers クライアントによるマウント設定/GUI の完全な検証は引き続き手動です。テスト件数と監査の全 severity 件数は実際の XML/JSON を集計し、ログ・Job Summary（コードブロック）・artifact に保存します。
 
 ```bash
 ./gradlew clean build
