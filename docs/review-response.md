@@ -63,9 +63,21 @@
 | 番号 | 判断・対応 | 確認方法・理由 |
 | --- | --- | --- |
 | 1 | 採用（記録）。Temurin 25.0.5.1+2 GA（2026-11-18）を確認し、公式 `eclipse-temurin` イメージ未公開のため 25.0.5+8 を維持する理由と再確認時期を README・検証記録に記載 | `git ls-remote --tags` と配布 asset のメタデータで GA を確認。Docker Hub の tags API で 25.0.5.1 は 0 件。コンテナと CI の JDK を同一版に保つ |
-| 2 | 採用。「2026-11-19 に再ビルド」を「index が 2026-11-19 に更新、amd64 イメージは 2026-11-11 ビルド」に訂正 | amd64 config の `created` を確認 |
+| 2 | 採用。「2026-11-19 に再ビルド」を「旧 index（amd64 2026-10-29 ビルド）から全アーキが 2026-11-11 に再ビルドされ、2026-11-19 に riscv64 が差し替えられて index が更新」に訂正 | 新旧 index と amd64 config の `created` を確認（4 回目検証で再訂正） |
 | 3 | PR #8 本文の乖離は取り込み時に更新（2 回目 #4 と同じ扱い） | 本ブランチの PR 本文に更新内容を記載 |
 | 4 | 採用。`build.gradle` の Mockito agent を `jvmArgumentProviders` で遅延解決し、agent JAR を test の入力に登録 | 空キャッシュの `--offline help` が成功し、`-i` ログで `-javaagent` が付与されることを確認。ロック・検証メタデータに変更なし |
 | 5 | 採用。`summarize-validation.py` が不正な JSON でも `scan results unavailable` を出力して終了コード 0 | 不正 JSON と実レポートの両方で動作確認 |
 | 6 | 採用。1 回目対応表 #2 の digest に「当時」の注記を追加 | 現行 Dockerfile との食い違いに見えないようにする |
 | 7 | 記録。chroot 再現はタイムゾーンとユーザー名変更を適用していないことを検証記録に明記。CI の `trivy image` 結果（143 件、MEDIUM 87 / LOW 37）と一致したことも記録 | CI run 44576003514 の Job Summary |
+
+## 4 回目の敵対的検証（コミット 388b488）への対応
+
+| 番号 | 判断・対応 | 確認方法・理由 |
+| --- | --- | --- |
+| 1 | 採用。遅延解決クロージャが `configurations` を実行時に参照していた回帰を修正し、FileCollection をクロージャ外で捕捉 | `--offline --configuration-cache clean test` が成功（修正前は `references a Gradle script object from a Groovy closure at execution time` で失敗）。空キャッシュ `--offline help`、`-javaagent` 付与、7 tests も維持 |
+| 2 | 採用。index 更新の説明を「全アーキ再ビルド（amd64 2026-11-11）+ 2026-11-19 の riscv64 差し替え」に訂正 | 旧 index `95e350…` の内容と新旧 config の `created` を比較 |
+| 3 | 採用。`summarize-validation.py` を壊れた JUnit XML・想定外のレポート構造・ディレクトリでも `unavailable` を出力して終了コード 0 になるよう堅牢化 | 不正入力と実レポートで動作確認 |
+| 4 | 採用。`build.gradle` のコメントを「自己アタッチは JDK 25 では警告付きで動作し、将来無効化が予定されている」に修正 | agent 行なしでも 7 tests は成功し警告のみ出ることを検証者が確認。明示的 agent は警告抑止と将来対策 |
+| 5 | 範囲外として記録。`.claude/settings.local.json` は PR 以前から追跡されており、`.gitignore` の `.claude/` と矛盾。秘密情報は含まない | 本 PR では変更しない。メンテナーの判断で追跡解除を検討 |
+| 6 | 採用。GA 日 2026-11-18 の根拠を「asset の `Last-Modified`」と明記 | asset JSON 自体に公開日はない |
+| 7 | 記録。空キャッシュからのオンライン build は Maven Central の 429 で初回に失敗することがあり、再試行で成功 | リポジトリ側の問題ではない |

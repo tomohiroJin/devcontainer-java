@@ -13,8 +13,8 @@ repositories {
 }
 
 configurations {
-    // Mockito's inline mock maker must be attached as a Java agent; self-attachment
-    // is disabled on modern JDKs.
+    // Mockito's inline mock maker is attached explicitly as a Java agent so the tests do not
+    // depend on dynamic self-attachment, which current JDKs warn about and plan to disable.
     mockitoAgent
 }
 
@@ -35,6 +35,8 @@ dependencyLocking {
 test {
     useJUnitPlatform()
     // Resolve the agent lazily so unrelated tasks (wrapper, help) do not need the dependency cache.
-    inputs.files(configurations.mockitoAgent).withPropertyName('mockitoAgent')
-    jvmArgumentProviders.add({ ["-javaagent:${configurations.mockitoAgent.singleFile}"] } as CommandLineArgumentProvider)
+    // Capture the file collection outside the closure to stay configuration-cache compatible.
+    def mockitoAgentFiles = configurations.mockitoAgent
+    inputs.files(mockitoAgentFiles).withPropertyName('mockitoAgent')
+    jvmArgumentProviders.add({ ["-javaagent:${mockitoAgentFiles.singleFile}"] } as CommandLineArgumentProvider)
 }
